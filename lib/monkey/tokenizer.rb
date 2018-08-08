@@ -1,51 +1,61 @@
 module Monkey
-    class Token
-        attr_reader :token, :value, :column, :line
+  class Token
+    attr_reader :token, :value, :column, :line
 
-        def initialize(token, value = nil, column = -1, line = -1)
-            @token = token
-            @value = value
-            @column = column
-            @line = line
-        end
+    def initialize(token, value = nil, column = -1, line = -1)
+      @token = token
+      @value = value
+      @column = column
+      @line = line
+    end
+  end
+
+  class Tokenizer
+    attr_reader :position, :line, :input, :column, :curr_ch
+
+    def initialize
+      @position = -1
+      @column = -1
     end
 
-    class Tokenizer
+    def get_tokens(input)
+      @input = input
+      tokens = []
 
-        attr_reader :position, :line, :column
+      loop do
+        advance
 
-        def initialize
-            @position = -1
-            @column = -1
-        end
+        break if @position == @input.length
 
-        def get_tokens(input)
-            tokens = []
-        
-            loop do
-                advance
+        tokens << Token.new(TOKEN_MAP[@curr_ch]) if TOKEN_MAP.key? @curr_ch
+      end
 
-                break if @position == input.length
-
-                tokens << case input[@position]
-                when '{' then Token.new(:lbrace)
-                when '}' then Token.new(:rbrace)
-                when '(' then Token.new(:lparens)
-                when ')' then Token.new(:rparens)
-                when '[' then Token.new(:lsqbracket)
-                when ']' then Token.new(:rsqbracket)
-                end
-            end
-
-            tokens
-        end
-
-        private
-
-        def advance
-            @position += 1
-            @column += 1
-        end
-
+      tokens
     end
+
+    private
+
+    TOKEN_MAP = {
+      '{': :lbrace,
+      '}': :rbrace,
+      '(': :lparens,
+      ')': :rparens,
+      '[': :lsqbracket,
+      ']': :rsqbracket,
+      '+': :plus,
+      '-': :minus,
+      '=': :assign,
+      '/': :divide,
+      '%': :percent,
+      '<': :lt,
+      '>': :gt
+    }.freeze
+
+    def advance
+      @position += 1
+      @column += 1
+
+      @curr_ch = @input[@position] if @position < @input.length
+    end
+  end
 end

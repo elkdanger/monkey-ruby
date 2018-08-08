@@ -1,5 +1,3 @@
 #!/usr/bin/env ruby
 
 require 'monkey'
-
-Monkey::say_hello
