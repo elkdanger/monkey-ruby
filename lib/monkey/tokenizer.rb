@@ -1,4 +1,5 @@
 module Monkey
+  # Represents a single token from the syntax
   class Token
     attr_reader :token, :value, :column, :line
 
@@ -10,8 +11,9 @@ module Monkey
     end
   end
 
+  # Breaks the text input down into tokens
   class Tokenizer
-    attr_reader :position, :line, :input, :column, :curr_ch
+    attr_reader :position, :line, :input, :column, :curr_ch, :eof
 
     def initialize
       @position = -1
@@ -20,14 +22,14 @@ module Monkey
 
     def get_tokens(input)
       @input = input
+      @eof = @input.length.zero?
+
       tokens = []
 
       loop do
-        advance
-
-        break if @position == @input.length
-
-        tokens << Token.new(TOKEN_MAP[@curr_ch]) if TOKEN_MAP.key? @curr_ch
+        next_token = read_next
+        tokens << next_token unless next_token.nil?
+        break if next_token.nil?
       end
 
       tokens
@@ -51,11 +53,46 @@ module Monkey
       '>': :gt
     }.freeze
 
+    def token?(chr)
+      TOKEN_MAP.key?(chr.to_sym)
+    end
+
+    def get_token(chr)
+      TOKEN_MAP[chr.to_sym]
+    end
+
+    def read_next
+      advance
+
+      return nil if @eof
+
+      case @curr_ch
+      when '"' then Token.new(:string, read_string)
+      else Token.new(get_token(@curr_ch))
+      end
+    end
+
+    def read_string
+      advance
+      str = ''
+
+      loop do
+        break if @curr_ch == '"'
+        str << @curr_ch
+        advance
+      end
+
+      advance
+
+      str
+    end
+
     def advance
       @position += 1
       @column += 1
+      @eof = @position >= @input.length
 
-      @curr_ch = @input[@position] if @position < @input.length
+      @curr_ch = @input[@position] unless @eof
     end
   end
 end

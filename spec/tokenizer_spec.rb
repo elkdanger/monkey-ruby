@@ -1,7 +1,6 @@
 include Monkey
 
 RSpec.describe Monkey::Tokenizer do
-
   before(:each) do
     @t = Tokenizer.new
   end
@@ -27,11 +26,19 @@ RSpec.describe Monkey::Tokenizer do
     expect(tokens).to have_tokens %i[
       plus
       minus
-      equals
+      assign
       divide
       percent
       lt
       gt
+    ]
+  end
+
+  it 'can read a string' do
+    tokens = @t.get_tokens '"This is a string"'
+
+    expect(tokens).to have_tokens [
+      Token.new(:string, 'This is a string')
     ]
   end
 end
