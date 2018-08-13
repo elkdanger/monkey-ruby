@@ -1,3 +1,5 @@
+require 'pry'
+
 module Monkey
   # Represents a single token from the syntax
   class Token
@@ -66,6 +68,8 @@ module Monkey
 
       return nil if @eof
 
+      chomp_whitespace
+
       case @curr_ch
       when '"' then Token.new(:string, read_string)
       else Token.new(get_token(@curr_ch))
@@ -85,6 +89,13 @@ module Monkey
       advance
 
       str
+    end
+
+    def chomp_whitespace
+      loop do
+        break unless @curr_ch =~ /\s/
+        advance
+      end
     end
 
     def advance

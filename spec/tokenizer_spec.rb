@@ -41,4 +41,18 @@ RSpec.describe Monkey::Tokenizer do
       Token.new(:string, 'This is a string')
     ]
   end
+
+  it 'chomps whitespace' do
+    # rubocop:disable Layout/TrailingWhitespace
+    tokens = @t.get_tokens <<-TEXT
+      "this is a string"   
+      "this is another string"
+    TEXT
+    # rubocop:enable Layout/TrailingWhitespace
+
+    expect(tokens).to have_tokens [
+      Token.new(:string, 'This is a string'),
+      Token.new(:string, 'This is another string')
+    ]
+  end
 end
