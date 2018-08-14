@@ -67,8 +67,6 @@ RSpec.describe Monkey::Tokenizer do
   it 'can parse floats' do
     tokens = @t.get_tokens('12.34 0.5')
 
-    puts tokens.inspect
-
     expect(tokens).to have_tokens [
       Token.new(:float, 12.34),
       Token.new(:float, 0.4)

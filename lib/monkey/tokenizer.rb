@@ -96,17 +96,19 @@ module Monkey
 
     def read_number
       str = ''
-      is_float = false
 
       loop do
         break unless @curr_ch =~ /[\d.]/
-        is_float = true if @curr_ch == '.'
         str << @curr_ch
         break unless advance
       end
 
-      if is_float
-        [:float, str.to_f]
+      float_or_int(str)
+    end
+
+    def float_or_int(value)
+      if value.include? '.'
+        [:float, value.to_f]
       else
         [:int, str.to_i]
       end
