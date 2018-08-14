@@ -55,4 +55,23 @@ RSpec.describe Monkey::Tokenizer do
       Token.new(:string, 'This is another string')
     ]
   end
+
+  it 'can parse integers' do
+    tokens = @t.get_tokens('1234')
+
+    expect(tokens).to have_tokens [
+      Token.new(:int, 1234)
+    ]
+  end
+
+  it 'can parse floats' do
+    tokens = @t.get_tokens('12.34 0.5')
+
+    puts tokens.inspect
+
+    expect(tokens).to have_tokens [
+      Token.new(:float, 12.34),
+      Token.new(:float, 0.4)
+    ]
+  end
 end

@@ -72,6 +72,9 @@ module Monkey
 
       case @curr_ch
       when '"' then Token.new(:string, read_string)
+      when /\d/ then
+        type, value = read_number
+        Token.new(type, value)
       else Token.new(get_token(@curr_ch))
       end
     end
@@ -83,7 +86,7 @@ module Monkey
       loop do
         break if @curr_ch == '"'
         str << @curr_ch
-        advance
+        break unless advance
       end
 
       advance
@@ -91,10 +94,28 @@ module Monkey
       str
     end
 
+    def read_number
+      str = ''
+      is_float = false
+
+      loop do
+        break unless @curr_ch =~ /[\d.]/
+        is_float = true if @curr_ch == '.'
+        str << @curr_ch
+        break unless advance
+      end
+
+      if is_float
+        [:float, str.to_f]
+      else
+        [:int, str.to_i]
+      end
+    end
+
     def chomp_whitespace
       loop do
         break unless @curr_ch =~ /\s/
-        advance
+        break unless advance
       end
     end
 
@@ -104,6 +125,8 @@ module Monkey
       @eof = @position >= @input.length
 
       @curr_ch = @input[@position] unless @eof
+
+      !@eof
     end
   end
 end
