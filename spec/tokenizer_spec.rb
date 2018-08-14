@@ -72,4 +72,28 @@ RSpec.describe Monkey::Tokenizer do
       Token.new(:float, 0.4)
     ]
   end
+
+  it 'can parse a few symbols together' do
+    tokens = @t.get_tokens('"hello" 123 {} ()')
+
+    expect(tokens).to have_tokens %i[
+      string
+      int
+      lbrace
+      rbrace
+      lparens
+      rparens
+    ]
+  end
+
+  it 'can understand identifiers' do
+    tokens = @t.get_tokens('let name = "Steve"')
+
+    expect(tokens).to have_tokens [
+      Token.new(:let),
+      Token.new(:ident, 'name'),
+      Token.new(:assign),
+      Token.new(:string, 'Steve')
+    ]
+  end
 end

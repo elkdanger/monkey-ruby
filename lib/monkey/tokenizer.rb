@@ -1,18 +1,6 @@
 require 'pry'
 
 module Monkey
-  # Represents a single token from the syntax
-  class Token
-    attr_reader :token, :value, :column, :line
-
-    def initialize(token, value = nil, column = -1, line = -1)
-      @token = token
-      @value = value
-      @column = column
-      @line = line
-    end
-  end
-
   # Breaks the text input down into tokens
   class Tokenizer
     attr_reader :position, :line, :input, :column, :curr_ch, :eof
@@ -39,30 +27,6 @@ module Monkey
 
     private
 
-    TOKEN_MAP = {
-      '{': :lbrace,
-      '}': :rbrace,
-      '(': :lparens,
-      ')': :rparens,
-      '[': :lsqbracket,
-      ']': :rsqbracket,
-      '+': :plus,
-      '-': :minus,
-      '=': :assign,
-      '/': :divide,
-      '%': :percent,
-      '<': :lt,
-      '>': :gt
-    }.freeze
-
-    def token?(chr)
-      TOKEN_MAP.key?(chr.to_sym)
-    end
-
-    def get_token(chr)
-      TOKEN_MAP[chr.to_sym]
-    end
-
     def read_next
       advance
 
@@ -72,10 +36,18 @@ module Monkey
 
       case @curr_ch
       when '"' then Token.new(:string, read_string)
-      when /\d/ then
-        type, value = read_number
-        Token.new(type, value)
-      else Token.new(get_token(@curr_ch))
+      else
+        if digit?(@curr_ch)
+          type, value = read_number
+          Token.new(type, value)
+        elsif letter?(@curr_ch)
+          ident, value = read_ident
+          Token.new(ident, value)
+        elsif Token.token?(@curr_ch)
+          Token.new(Token.get_token(@curr_ch))
+        else
+          raise "Invalid token #{@curr_ch}" unless token?(@curr_ch)
+        end
       end
     end
 
@@ -95,23 +67,58 @@ module Monkey
     end
 
     def read_number
-      str = ''
+      str = read_while(/[\d.]/)
+      float_or_int(str)
+    end
+
+    def read_ident
+      ident = read_until(/\s/)
+
+      if Token.keyword?(ident)
+        [Token.get_keyword(ident), nil]
+      else
+        [:ident, ident]
+      end
+    end
+
+    def read_until(regex)
+      word = ''
 
       loop do
-        break unless @curr_ch =~ /[\d.]/
-        str << @curr_ch
+        break if @curr_ch =~ regex
+        word << @curr_ch
         break unless advance
       end
 
-      float_or_int(str)
+      word
+    end
+
+    def read_while(regex)
+      word = ''
+
+      loop do
+        break unless @curr_ch =~ regex
+        word << @curr_ch
+        break unless advance
+      end
+
+      word
     end
 
     def float_or_int(value)
       if value.include? '.'
         [:float, value.to_f]
       else
-        [:int, str.to_i]
+        [:int, value.to_i]
       end
+    end
+
+    def letter?(char)
+      char =~ /[a-z]/
+    end
+
+    def digit?(char)
+      char =~ /\d/
     end
 
     def chomp_whitespace
