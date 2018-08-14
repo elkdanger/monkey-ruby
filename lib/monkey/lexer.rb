@@ -2,7 +2,7 @@ require 'pry'
 
 module Monkey
   # Breaks the text input down into tokens
-  class Tokenizer
+  class Lexer
     attr_reader :position, :line, :input, :column, :curr_ch, :eof
 
     def initialize

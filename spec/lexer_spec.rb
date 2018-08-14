@@ -1,8 +1,8 @@
 include Monkey
 
-RSpec.describe Monkey::Tokenizer do
+RSpec.describe Monkey::Lexer do
   before(:each) do
-    @t = Tokenizer.new
+    @t = Lexer.new
   end
 
   it 'can parse brace symbols' do
