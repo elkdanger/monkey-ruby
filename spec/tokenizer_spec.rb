@@ -86,14 +86,37 @@ RSpec.describe Monkey::Tokenizer do
     ]
   end
 
-  it 'can understand identifiers' do
-    tokens = @t.get_tokens('let name = "Steve"')
+  context 'identifiers' do
+    it 'can understand let' do
+      tokens = @t.get_tokens('let name = "Steve"')
+  
+      expect(tokens).to have_tokens [
+        Token.new(:let),
+        Token.new(:ident, 'name'),
+        Token.new(:assign),
+        Token.new(:string, 'Steve')
+      ]
+    end
 
-    expect(tokens).to have_tokens [
-      Token.new(:let),
-      Token.new(:ident, 'name'),
-      Token.new(:assign),
-      Token.new(:string, 'Steve')
-    ]
+    it 'can understand if' do
+      tokens = @t.get_tokens('if {}')
+
+      expect(tokens).to have_tokens %i[
+        if
+        lbrace
+        rbrace
+      ]
+    end
+
+    it 'can understand else' do
+      tokens = @t.get_tokens('if this else that')
+
+      expect(tokens).to have_tokens %i[
+        if
+        ident
+        else
+        ident
+      ]
+    end
   end
 end

@@ -43,7 +43,9 @@ module Monkey
     }.freeze
 
     KEYWORD_MAP = {
-      'let': :let
+      'let': :let,
+      'if': :if,
+      'else': :else
     }.freeze
   end
 end
