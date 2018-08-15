@@ -5,29 +5,14 @@ module Monkey
   class Lexer
     attr_reader :position, :line, :input, :column, :curr_ch, :eof
 
-    def initialize
+    def initialize(input)
       @position = -1
       @column = -1
-    end
-
-    def get_tokens(input)
       @input = input
       @eof = @input.length.zero?
-
-      tokens = []
-
-      loop do
-        next_token = read_next
-        tokens << next_token unless next_token.nil?
-        break if next_token.nil?
-      end
-
-      tokens
     end
 
-    private
-
-    def read_next
+    def next_token
       advance
 
       return nil if @eof
@@ -50,6 +35,8 @@ module Monkey
         end
       end
     end
+
+    private
 
     def read_string
       advance

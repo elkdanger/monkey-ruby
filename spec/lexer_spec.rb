@@ -1,27 +1,37 @@
 include Monkey
 
 RSpec.describe Monkey::Lexer do
-  before(:each) do
-    @t = Lexer.new
+  def get_tokens_from(input)
+    l = Lexer.new(input)
+
+    tokens = []
+    token = l.next_token
+
+    while token
+      tokens << token
+      token = l.next_token
+    end
+
+    tokens
   end
 
   it 'can parse brace symbols' do
-    tokens = @t.get_tokens('{}')
+    tokens = get_tokens_from '{}'
     expect(tokens).to have_tokens %i[lbrace rbrace]
   end
 
   it 'can parse parentheses' do
-    tokens = @t.get_tokens('()')
+    tokens = get_tokens_from '()'
     expect(tokens).to have_tokens %i[lparens rparens]
   end
 
   it 'can parse square brackets' do
-    tokens = @t.get_tokens('[]')
+    tokens = get_tokens_from '[]'
     expect(tokens).to have_tokens %i[lsqbracket rsqbracket]
   end
 
   it 'can parse math symbols' do
-    tokens = @t.get_tokens('+-=/%<>')
+    tokens = get_tokens_from '+-=/%<>'
 
     expect(tokens).to have_tokens %i[
       plus
@@ -35,7 +45,7 @@ RSpec.describe Monkey::Lexer do
   end
 
   it 'can read a string' do
-    tokens = @t.get_tokens '"This is a string"'
+    tokens = get_tokens_from '"This is a string"'
 
     expect(tokens).to have_tokens [
       Token.new(:string, 'This is a string')
@@ -44,9 +54,9 @@ RSpec.describe Monkey::Lexer do
 
   it 'chomps whitespace' do
     # rubocop:disable Layout/TrailingWhitespace
-    tokens = @t.get_tokens <<-TEXT
-      "this is a string"   
-      "this is another string"
+    tokens = get_tokens_from <<-TEXT
+      "This is a string"   
+      "This is another string"
     TEXT
     # rubocop:enable Layout/TrailingWhitespace
 
@@ -57,7 +67,7 @@ RSpec.describe Monkey::Lexer do
   end
 
   it 'can parse integers' do
-    tokens = @t.get_tokens('1234')
+    tokens = get_tokens_from '1234'
 
     expect(tokens).to have_tokens [
       Token.new(:int, 1234)
@@ -65,16 +75,16 @@ RSpec.describe Monkey::Lexer do
   end
 
   it 'can parse floats' do
-    tokens = @t.get_tokens('12.34 0.5')
+    tokens = get_tokens_from '12.34 0.5'
 
     expect(tokens).to have_tokens [
       Token.new(:float, 12.34),
-      Token.new(:float, 0.4)
+      Token.new(:float, 0.5)
     ]
   end
 
   it 'can parse a few symbols together' do
-    tokens = @t.get_tokens('"hello" 123 {} ()')
+    tokens = get_tokens_from '"hello" 123 {} ()'
 
     expect(tokens).to have_tokens %i[
       string
@@ -88,8 +98,8 @@ RSpec.describe Monkey::Lexer do
 
   context 'identifiers' do
     it 'can understand let' do
-      tokens = @t.get_tokens('let name = "Steve"')
-  
+      tokens = get_tokens_from 'let name = "Steve"'
+
       expect(tokens).to have_tokens [
         Token.new(:let),
         Token.new(:ident, 'name'),
@@ -99,7 +109,7 @@ RSpec.describe Monkey::Lexer do
     end
 
     it 'can understand if' do
-      tokens = @t.get_tokens('if {}')
+      tokens = get_tokens_from 'if {}'
 
       expect(tokens).to have_tokens %i[
         if
@@ -109,7 +119,7 @@ RSpec.describe Monkey::Lexer do
     end
 
     it 'can understand else' do
-      tokens = @t.get_tokens('if this else that')
+      tokens = get_tokens_from 'if this else that'
 
       expect(tokens).to have_tokens %i[
         if
